@@ -34,4 +34,8 @@ public enum Encoding {
                 .collect(Collectors.joining(", "));
     }
 
+    public static boolean isGzipRequested(String encoding) {
+        return isValid(encoding) && encoding.contains(GZIP.encoding);
+    }
+
 }

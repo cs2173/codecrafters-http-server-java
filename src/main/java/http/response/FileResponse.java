@@ -4,6 +4,7 @@ import http.env.*;
 import http.request.HttpRequest;
 import http.util.Files;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,18 +47,18 @@ public class FileResponse extends HttpResponse {
     }
 
     @Override
-    protected HttpStatus getStatus() {
+    protected HttpStatus getResponseStatus() {
         return status;
     }
 
     @Override
-    protected Map<HttpHeader, String> getHeaders() {
+    protected Map<HttpHeader, String> getResponseHeaders() {
         return Map.copyOf(headers);
     }
 
     @Override
-    protected Optional<String> getBody() {
-        return contents;
+    public byte[] getBody() {
+        return contents.map(s -> s.getBytes(StandardCharsets.UTF_8)).orElse(null);
     }
 
 }

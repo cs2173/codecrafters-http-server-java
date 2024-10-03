@@ -7,9 +7,8 @@ import http.response.HttpResponseFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.OutputStream;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 
 public class ConnectionHandler implements Runnable {
 
@@ -22,12 +21,14 @@ public class ConnectionHandler implements Runnable {
     @Override
     public void run() {
         try (InputStream in = socket.getInputStream();
-             PrintWriter out = new PrintWriter(socket.getOutputStream(), true, StandardCharsets.UTF_8)) {
+             OutputStream out = socket.getOutputStream()) {
             System.out.println("accepted new connection");
             HttpRequestParser parser = new HttpRequestParser(in);
             HttpRequest request = parser.parseRequest();
             HttpResponse response = HttpResponseFactory.getResponse(request);
-            out.write(response.toString());
+            out.write(response.getStatus());
+            out.write(response.getHeaders());
+            out.write(response.getBody());
             out.flush();
         } catch (IOException e) {
             System.out.printf("IOException: %s%n", e.getMessage());

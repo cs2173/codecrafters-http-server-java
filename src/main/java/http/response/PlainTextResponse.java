@@ -4,42 +4,48 @@ import http.env.Encoding;
 import http.env.HttpHeader;
 import http.env.HttpStatus;
 import http.request.HttpRequest;
+import http.util.Gzip;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 public class PlainTextResponse extends HttpResponse {
 
-    private final String body;
+    private final byte[] body;
     private final Map<HttpHeader, String> headers = new HashMap<>();
 
     public PlainTextResponse(HttpRequest request) {
-        this.body = Objects.requireNonNullElse(request.getPathValue(), "");
-
-        this.headers.put(HttpHeader.CONTENT_TYPE, "text/plain");
-        this.headers.put(HttpHeader.CONTENT_LENGTH, String.valueOf(this.body.length()));
+        String value = Objects.requireNonNullElse(request.getPathValue(), "");
 
         String encoding = request.getHeaders().get(HttpHeader.ACCEPT_ENCODING);
-        if (Encoding.isValid(encoding)) {
-            this.headers.put(HttpHeader.CONTENT_ENCODING, Encoding.extractValidEncodings(encoding));
+
+        if (Encoding.isGzipRequested(encoding)) {
+            this.body = Gzip.compress(value);
+            this.headers.put(HttpHeader.CONTENT_ENCODING, Encoding.GZIP.getEncoding());
+        } else {
+            this.body = value.getBytes(StandardCharsets.UTF_8);
+            this.headers.put(HttpHeader.CONTENT_LENGTH, String.valueOf(value.length()));
+        }
+
+        this.headers.put(HttpHeader.CONTENT_TYPE, "text/plain");
+        if (this.body != null) {
+            this.headers.put(HttpHeader.CONTENT_LENGTH, String.valueOf(this.body.length));
         }
     }
 
     @Override
-    protected HttpStatus getStatus() {
+    protected HttpStatus getResponseStatus() {
         return HttpStatus.OK;
     }
 
     @Override
-    protected Map<HttpHeader, String> getHeaders() {
+    protected Map<HttpHeader, String> getResponseHeaders() {
         return Map.copyOf(headers);
     }
 
     @Override
-    protected Optional<String> getBody() {
-        return Optional.of(body);
+    public byte[] getBody() {
+        return body;
     }
 
 }

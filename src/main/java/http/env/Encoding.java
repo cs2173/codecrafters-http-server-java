@@ -7,6 +7,7 @@ public enum Encoding {
     GZIP("gzip");
 
     private final String encoding;
+
     Encoding(String encoding) {
         this.encoding = encoding;
     }

@@ -7,3 +7,10 @@ GET http://localhost:4221/abcdefg
 ###
 
 GET http://localhost:4221/echo/abc
+
+###
+
+GET http://localhost:4221/user-agent
+Host: localhost:4221
+User-Agent: foobar/1.2.3
+Accept: */*

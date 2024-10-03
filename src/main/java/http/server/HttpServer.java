@@ -1,18 +1,16 @@
 package http.server;
 
 import http.env.Environment;
-import http.env.HttpMethod;
+import http.request.HttpRequest;
+import http.request.HttpRequestParser;
 import http.response.HttpResponse;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public final class HttpServer {
 
@@ -25,23 +23,10 @@ public final class HttpServer {
             try (Socket incoming = serverSocket.accept();
                  Scanner in = new Scanner(incoming.getInputStream());
                  PrintWriter out = new PrintWriter(incoming.getOutputStream(), true, StandardCharsets.UTF_8)) {
-
                 System.out.println("accepted new connection");
-
-                String regex = "^%s\\s(\\/[\\S]*).*".formatted(HttpMethod.getMethods());
-                Pattern pattern = Pattern.compile(regex);
-
-                String line, path = null;
-                while (in.hasNextLine()) {
-                    line = in.nextLine();
-                    Matcher matcher = pattern.matcher(line);
-                    if (matcher.find()) {
-                        path = matcher.group(1);
-                        break;
-                    }
-                }
-
-                String response = HttpResponse.getResponse(path);
+                HttpRequestParser parser = new HttpRequestParser(in);
+                HttpRequest request = parser.parseRequest();
+                String response = HttpResponse.getResponse(request);
                 out.write(response);
                 out.flush();
             }

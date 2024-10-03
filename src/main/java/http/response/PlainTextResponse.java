@@ -1,7 +1,9 @@
 package http.response;
 
+import http.env.Encoding;
 import http.env.HttpHeader;
 import http.env.HttpStatus;
+import http.request.HttpRequest;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,10 +15,20 @@ public class PlainTextResponse extends HttpResponse {
     private final String body;
     private final Map<HttpHeader, String> headers = new HashMap<>();
 
-    public PlainTextResponse(String requestBody) {
-        this.body = Objects.requireNonNullElse(requestBody, "");
+    public PlainTextResponse(HttpRequest request) {
+        if (request.getHeaders().containsKey(HttpHeader.USER_AGENT)) {
+            this.body = request.getHeaders().get(HttpHeader.USER_AGENT);
+        } else {
+            this.body = Objects.requireNonNullElse(request.getPathValue(), "");
+        }
+
         this.headers.put(HttpHeader.CONTENT_TYPE, "text/plain");
         this.headers.put(HttpHeader.CONTENT_LENGTH, String.valueOf(this.body.length()));
+
+        String encoding = request.getHeaders().get(HttpHeader.ACCEPT_ENCODING);
+        if (encoding != null && Encoding.isValid(encoding)) {
+            this.headers.put(HttpHeader.CONTENT_ENCODING, encoding);
+        }
     }
 
     @Override

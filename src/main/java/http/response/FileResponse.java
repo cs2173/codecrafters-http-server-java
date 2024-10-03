@@ -1,12 +1,8 @@
 package http.response;
 
-import http.env.Environment;
-import http.env.HttpHeader;
-import http.env.HttpMethod;
-import http.env.HttpStatus;
+import http.env.*;
 import http.request.HttpRequest;
 import http.util.Files;
-import http.util.Strings;
 
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -23,7 +19,7 @@ public class FileResponse extends HttpResponse {
 
     public FileResponse(HttpRequest request) {
         String directory = Objects.requireNonNullElse(Environment.getInstance().getDirectory(), "");
-        String filename = Objects.requireNonNullElse(Strings.afterLast(request.getPath(), "/files/"), "");
+        String filename = Objects.requireNonNullElse(request.getPathValue(), "");
         this.filepath = Path.of(directory, filename);
 
         boolean shouldCreateFile = request.getMethod() == HttpMethod.POST;

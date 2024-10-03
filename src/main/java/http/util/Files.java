@@ -19,4 +19,20 @@ public final class Files {
         }
     }
 
+    public static void writeContents(Path filepath, String contents) {
+        try {
+            java.nio.file.Files.writeString(filepath, contents);
+        } catch (IOException e) {
+            // noop
+        }
+    }
+
+    public static long getFileSize(Path filepath) {
+        try {
+            return java.nio.file.Files.size(filepath);
+        } catch (IOException e) {
+            return 0L;
+        }
+    }
+
 }

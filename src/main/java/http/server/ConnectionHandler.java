@@ -6,10 +6,10 @@ import http.response.HttpResponse;
 import http.response.HttpResponseFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.Scanner;
 
 public class ConnectionHandler implements Runnable {
 
@@ -21,7 +21,7 @@ public class ConnectionHandler implements Runnable {
 
     @Override
     public void run() {
-        try (Scanner in = new Scanner(socket.getInputStream());
+        try (InputStream in = socket.getInputStream();
              PrintWriter out = new PrintWriter(socket.getOutputStream(), true, StandardCharsets.UTF_8)) {
             System.out.println("accepted new connection");
             HttpRequestParser parser = new HttpRequestParser(in);

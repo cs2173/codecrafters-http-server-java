@@ -29,3 +29,16 @@ GET http://localhost:4221/files/foo
 
 ## 404 Not Found
 GET http://localhost:4221/files/non_existant_file
+
+###
+
+## 201 Created
+POST http://localhost:4221/files/foo
+Host: localhost:4221
+Accept: */*
+Content-Type: text/plain
+Content-Length: 5
+
+12345
+
+###

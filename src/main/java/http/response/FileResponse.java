@@ -2,8 +2,11 @@ package http.response;
 
 import http.env.Environment;
 import http.env.HttpHeader;
+import http.env.HttpMethod;
 import http.env.HttpStatus;
+import http.request.HttpRequest;
 import http.util.Files;
+import http.util.Strings;
 
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -18,18 +21,31 @@ public class FileResponse extends HttpResponse {
     private final HttpStatus status;
     private final Map<HttpHeader, String> headers = new HashMap<>();
 
-    public FileResponse(String requestBody) {
+    public FileResponse(HttpRequest request) {
         String directory = Objects.requireNonNullElse(Environment.getInstance().getDirectory(), "");
-        String filename = Objects.requireNonNullElse(requestBody, "");
+        String filename = Objects.requireNonNullElse(Strings.afterLast(request.getPath(), "/files/"), "");
         this.filepath = Path.of(directory, filename);
 
-        this.contents = Files.readContents(filepath);
+        boolean shouldCreateFile = request.getMethod() == HttpMethod.POST;
+        if (shouldCreateFile) {
+            Files.writeContents(this.filepath, request.getBody());
+        }
 
-        this.status = this.contents.isPresent() ? HttpStatus.OK : HttpStatus.NOT_FOUND;
+        this.contents = Files.readContents(this.filepath);
+
+        this.status = switch (this.contents) {
+            case Optional<String> c when c.isPresent() && shouldCreateFile -> HttpStatus.CREATED;
+            case Optional<String> c when c.isPresent() -> HttpStatus.OK;
+            default -> HttpStatus.NOT_FOUND;
+        };
 
         if (this.contents.isPresent()) {
             this.headers.put(HttpHeader.CONTENT_TYPE, "application/octet-stream");
-            this.headers.put(HttpHeader.CONTENT_LENGTH, String.valueOf(this.contents.get().length()));
+            if (shouldCreateFile) {
+                this.headers.put(HttpHeader.CONTENT_LENGTH, String.valueOf(Files.getFileSize(this.filepath)));
+            } else {
+                this.headers.put(HttpHeader.CONTENT_LENGTH, String.valueOf(this.contents.get().length()));
+            }
         }
     }
 

@@ -15,7 +15,7 @@ public final class HttpServer {
 
     public void start() {
         try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor();
-             ServerSocket serverSocket = new ServerSocket(Environment.PORT)) {
+             ServerSocket serverSocket = new ServerSocket(Environment.getInstance().getPort())) {
             serverSocket.setReuseAddress(true);
             while (true) {
                 Socket socket = serverSocket.accept();

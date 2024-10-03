@@ -3,28 +3,33 @@ package http.response;
 import http.env.Environment;
 import http.env.HttpHeader;
 import http.env.HttpStatus;
-import http.request.HttpRequest;
-import http.util.Strings;
 
-public class HttpResponse {
+import java.util.Map;
+import java.util.Optional;
 
-    public static String getResponse(HttpRequest request) {
-        return switch (request.getPath()) {
-            case "/" -> "%s %d %s\r\n\r\n".formatted(Environment.VERSION, HttpStatus.OK.getCode(), HttpStatus.OK.getStatus());
-            case String p when p.startsWith("/echo") -> {
-                String value = Strings.afterLast(p, "/echo/");
-                String status = "%s %d %s\r\n".formatted(Environment.VERSION, HttpStatus.OK.getCode(), HttpStatus.OK.getStatus());
-                String body = "Content-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s".formatted(value.length(), value);
-                yield "%s%s".formatted(status, body);
-            }
-            case String p when p.startsWith("/user-agent") && request.getHeaders().containsKey(HttpHeader.USER_AGENT) -> {
-                String value = request.getHeaders().get(HttpHeader.USER_AGENT);
-                String status = "%s %d %s\r\n".formatted(Environment.VERSION, HttpStatus.OK.getCode(), HttpStatus.OK.getStatus());
-                String body = "Content-Type: text/plain\r\nContent-Length: %d\r\n\r\n%s".formatted(value.length(), value);
-                yield "%s%s".formatted(status, body);
-            }
-            default -> "%s %d %s\r\n\r\n".formatted(Environment.VERSION, HttpStatus.NOT_FOUND.getCode(), HttpStatus.NOT_FOUND.getStatus());
-        };
+public abstract class HttpResponse {
+
+    protected abstract HttpStatus getStatus();
+    protected abstract Map<HttpHeader, String> getHeaders();
+    protected abstract Optional<String> getBody();
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+
+        // status
+        builder.append("%s %d %s\r\n".formatted(Environment.getInstance().getVersion(), getStatus().getCode(), getStatus().getStatus()));
+
+        // headers
+        getHeaders().forEach((k, v) -> builder.append("%s: %s\r\n".formatted(k.getHeader(), v)));
+        builder.append("\r\n");
+
+        // getBody
+        if (getBody().isPresent()) {
+            builder.append(getBody().get());
+        }
+
+        return builder.toString();
     }
 
 }

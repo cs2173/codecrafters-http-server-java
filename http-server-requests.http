@@ -1,16 +1,31 @@
+
+# 200 OK
 GET http://localhost:4221/
 
 ###
 
+# 404 Not Found
 GET http://localhost:4221/abcdefg
 
 ###
 
+# 200 OK && abc
 GET http://localhost:4221/echo/abc
 
 ###
 
+# 200 OK && foobar/1.2.3
 GET http://localhost:4221/user-agent
 Host: localhost:4221
 User-Agent: foobar/1.2.3
 Accept: */*
+
+###
+
+## 200 OK && Hello, World!
+GET http://localhost:4221/files/foo
+
+###
+
+## 404 Not Found
+GET http://localhost:4221/files/non_existant_file

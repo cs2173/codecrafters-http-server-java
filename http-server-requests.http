@@ -3,3 +3,7 @@ GET http://localhost:4221/
 ###
 
 GET http://localhost:4221/abcdefg
+
+###
+
+GET http://localhost:4221/echo/abc

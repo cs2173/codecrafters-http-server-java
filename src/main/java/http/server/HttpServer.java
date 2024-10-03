@@ -2,6 +2,7 @@ package http.server;
 
 import http.env.Environment;
 import http.env.HttpMethod;
+import http.response.HttpResponse;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -33,7 +34,6 @@ public final class HttpServer {
                 String line, path = null;
                 while (in.hasNextLine()) {
                     line = in.nextLine();
-                    System.out.println(line);
                     Matcher matcher = pattern.matcher(line);
                     if (matcher.find()) {
                         path = matcher.group(1);
@@ -41,12 +41,8 @@ public final class HttpServer {
                     }
                 }
 
-                if ("/".equals(path)) {
-                    out.write("HTTP/1.1 200 OK\r\n\r\n");
-                } else {
-                    out.write("HTTP/1.1 404 Not Found\r\n\r\n");
-                }
-
+                String response = HttpResponse.getResponse(path);
+                out.write(response);
                 out.flush();
             }
         } catch (IOException e) {

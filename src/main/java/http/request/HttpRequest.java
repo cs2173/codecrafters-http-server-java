@@ -32,7 +32,7 @@ public class HttpRequest {
     }
 
     public String getPathValue() {
-        return pathValue;
+        return "/user-agent".equals(pathValue) ? headers.getOrDefault(HttpHeader.USER_AGENT, "") : pathValue;
     }
 
     public Map<HttpHeader, String> getHeaders() {

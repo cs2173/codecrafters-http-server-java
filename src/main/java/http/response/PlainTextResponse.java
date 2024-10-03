@@ -16,18 +16,14 @@ public class PlainTextResponse extends HttpResponse {
     private final Map<HttpHeader, String> headers = new HashMap<>();
 
     public PlainTextResponse(HttpRequest request) {
-        if (request.getHeaders().containsKey(HttpHeader.USER_AGENT)) {
-            this.body = request.getHeaders().get(HttpHeader.USER_AGENT);
-        } else {
-            this.body = Objects.requireNonNullElse(request.getPathValue(), "");
-        }
+        this.body = Objects.requireNonNullElse(request.getPathValue(), "");
 
         this.headers.put(HttpHeader.CONTENT_TYPE, "text/plain");
         this.headers.put(HttpHeader.CONTENT_LENGTH, String.valueOf(this.body.length()));
 
         String encoding = request.getHeaders().get(HttpHeader.ACCEPT_ENCODING);
-        if (encoding != null && Encoding.isValid(encoding)) {
-            this.headers.put(HttpHeader.CONTENT_ENCODING, encoding);
+        if (Encoding.isValid(encoding)) {
+            this.headers.put(HttpHeader.CONTENT_ENCODING, Encoding.extractValidEncodings(encoding));
         }
     }
 

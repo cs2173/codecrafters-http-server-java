@@ -42,3 +42,25 @@ Content-Length: 5
 12345
 
 ###
+
+## 200 OK && Content-Encoding
+GET http://localhost:4221/echo/abc
+Accept-Encoding: gzip
+
+###
+
+## 200 OK without Content-Encoding
+GET http://localhost:4221/echo/abc
+Accept-Encoding: invalid
+
+###
+
+## 200 OK && Content-Encoding gzip
+GET http://localhost:4221/echo/abc
+Accept-Encoding: encoding1, gzip, encoding2
+
+###
+
+## 200 OK && Content-Encoding gzip
+GET http://localhost:4221/echo/abc
+Accept-Encoding: encoding1, encoding2
